@@ -9,6 +9,7 @@ class GenericHasher(ABC):
   class TooManyHashesException(Exception):
     times: int
     repeat_count: int
+
     def __init__(self, repeat_count: int, times: int) -> None:
       self.repeat_count = repeat_count
       self.times = times
