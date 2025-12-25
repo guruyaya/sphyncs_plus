@@ -4,9 +4,10 @@ from .generic import GenericRandomGenerator
 
 class CSPRNGRandomGenerator(GenericRandomGenerator):
   _instance: Random
-  def __init__(self, instance: None|Random):
-    random_instance = instance or Random()
-    self._instance = random_instance
+  protocol = "CSPRNG"
+  
+  def __init__(self, instance: None|Random=None):
+    self._instance = instance or Random()
 
   def _set_seed(self, seed):
     self._instance.seed(seed)
