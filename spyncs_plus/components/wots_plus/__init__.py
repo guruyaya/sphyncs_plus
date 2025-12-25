@@ -1,0 +1,2 @@
+from spyncs_plus.components.wots_plus.public import WotsPlusPublic
+from spyncs_plus.components.wots_plus.secret import WotsPlusSecret

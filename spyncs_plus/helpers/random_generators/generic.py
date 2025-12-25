@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
+from typing import Self
 
 class GenericRandomGenerator(ABC):
     base_seed: int
@@ -26,9 +27,10 @@ class GenericRandomGenerator(ABC):
     def _jump(self, jump: int):
         pass
     
-    def setup(self, seed: int, modeifier:None|int=None):
+    def setup(self, seed: int, modeifier:None|int=None) -> Self:
         self.base_seed = seed
         self.reset_seed(modeifier)
+        return self # using the builder pattern for easier usage
 
     def reset_seed(self, modifier:None|int=None):
         if not hasattr(self, "base_seed"):
