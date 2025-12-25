@@ -25,7 +25,7 @@ class WotsPlusSecret(WotsPlusPublic):
     self.checksum_keys = [self.hasher(key) for key in self.randomGen.get_keys(self._required_checksum_key_count)]
 
     p_keys = [self.hasher.forward(h, self.hasher.repeat_count) for h in (self.s_keys + self.checksum_keys)]
-    self.p_key = self.hasher.concatenate_hash(p_keys)
+    self.public_key = self.hasher.concatenate_hash(p_keys)
 
   def sign(self, message: bytes) -> list[bytes]:
     message_hash = self.hasher(message)
@@ -43,4 +43,4 @@ class WotsPlusSecret(WotsPlusPublic):
     return values
 
   def get_public_wots(self) -> WotsPlusPublic:
-    return WotsPlusPublic(self.hasher, self.p_key)
+    return WotsPlusPublic(self.hasher, self.public_key)
