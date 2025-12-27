@@ -10,7 +10,7 @@ class SphincsForestSecret():
     _max_key_num: int
     _inner_trees_last_level: int
     num_levels = 16
-    num_inner_levels = 2
+    num_inner_levels = 4
     
     class RandomKeyTooHigh(Exception):
         def __init__(self, key_num, max_key):
@@ -20,7 +20,7 @@ class SphincsForestSecret():
         self.hasher = hasher
         self._secret_key = secret_key
         self.random_generator = random_generator.setup(secret_key)
-        self._inner_trees_last_level = (2**self.num_inner_levels)
+        self._inner_trees_last_level = 2**self.num_inner_levels
         self._max_key_num = self._inner_trees_last_level**self.num_levels
 
     def get_private_key(self, key_num:Optional[int]=None):
@@ -28,8 +28,8 @@ class SphincsForestSecret():
         if key_num_int >= self._max_key_num:
             raise self.RandomKeyTooHigh(key_num_int, self._max_key_num)
         
-        print (f"**** Getting tree for {key_num_int} ****")
         this_level_tree = key_num_int
+        print (f"** Getting levels for key num {key_num_int}")
         for level in range (self.num_levels-1, -1, -1):
             this_level_branch = this_level_tree % self._inner_trees_last_level
             this_level_tree = this_level_tree // self._inner_trees_last_level
@@ -38,6 +38,9 @@ class SphincsForestSecret():
 if __name__ == '__main__':
     # this is for local testing purpose
     secret = SphincsForestSecret(SHA256Hasher(), CSPRNGRandomGenerator(), 123)
+    # assert secret._max_key_num > 2**64
+    assert secret._max_key_num == 2**64
     secret.get_private_key(3)
-    secret.get_private_key(4294967293)
+    secret.get_private_key(6)
+    secret.get_private_key(secret._max_key_num-1)
     secret.get_private_key(424967295)

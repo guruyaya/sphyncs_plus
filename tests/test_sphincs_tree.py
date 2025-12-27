@@ -16,6 +16,7 @@ def test_sphincs_tree():
 
     assert proof.verify()
 
+    generator.reset_seed()
     f_down = SphincsTreeSecret(SHA256Hasher(), generator)
     assert f_down.is_level_up_signed() is False
     f.sign_level_down(f_down, 3)
@@ -25,5 +26,5 @@ def test_sphincs_tree():
     bytes_proof = proof.to_bytes()
 
     assert SphincsTreeProof.from_bytes(bytes_proof).verify()
-    assert f_down.level_up_proof.public_key.hex() == '53f48dc43cf95870477454e3b308174f2ad54d35637a9853d5b621ec91d28ff3'
+    assert f_down.level_up_proof.public_key.hex() == '64df436584c3df34f01afe7f9796997a27e44726f13930be5ad855c7b4beeb0b'
     assert f_down.is_level_up_signed()

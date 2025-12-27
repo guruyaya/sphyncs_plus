@@ -13,8 +13,12 @@ class SphincsTreeSecret(SphincsTreePublic):
   def create_pairs(lst: list):
     return [[lst[i], lst[i+1]] for i in range(0, len(lst), 2)]
 
-  def __init__(self, hasher: GenericHasher, randomGen: GenericRandomGenerator):
+  def __init__(self, hasher: GenericHasher, randomGen: GenericRandomGenerator, num_levels:None|int=None):
     self.hasher = hasher
+    self.num_levels = num_levels or self.num_levels
+    if self.num_levels > 255:
+      raise Exception("Does not support higher than 255 levels in one tree")
+
     self.base_level = self.create_pairs([WotsPlusSecret(hasher, randomGen) for _ in range(2 ** (self.num_levels))])
     self.levels = [[[w.public_key for w in l] for l in self.base_level]]
 

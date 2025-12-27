@@ -41,37 +41,41 @@ class SphincsTreeProof:
 
   def to_bytes(self) -> bytes:
     if self.hash_type == ProofHashTypes.SHA256:
-      proofs_bytes = b''.join(int.to_bytes(tree[0], 8) + tree[1] for tree in self.proof_tree)
+        num_proof_size = len(self.proof_tree)
+        proofs_bytes = b''.join(int.to_bytes(tree[0], 8) + tree[1] for tree in self.proof_tree)
 
-      return ( self.hash_type.encode() + "|".encode() + self.hash_type_version.encode() + "|".encode() +
-        self.message_hash + b''.join(self.signature) +
-            proofs_bytes + (self.public_key or int.to_bytes(0, 32)))
+        return ( self.hash_type.encode() + "|".encode() + self.hash_type_version.encode() + "|".encode() +
+            self.message_hash + b''.join(self.signature) +
+                num_proof_size.to_bytes(1) +
+                proofs_bytes + (self.public_key or int.to_bytes(0, 32)))
     else:
-      raise self.NoSuchHushType(self.hash_type)
+        raise self.NoSuchHushType(self.hash_type)
 
   @classmethod
   def from_bytes(cls, proof_bytes: bytes) -> Self:
-    def bytes_pop(bts: bytes, n: int):
+    def bytes_pop(bts: bytes, n: int) -> tuple[bytes, bytes]:
       return bts[:n], bts[n:]
-
-
+    
     hash_type, hash_type_version, proof = proof_bytes.split(b"|", 2)
     message_hush, proof = bytes_pop(proof, 32)
 
     if hash_type.decode() == ProofHashTypes.SHA256:
-      signature = []
-      for _ in range(34):
-        sig_part, proof = bytes_pop(proof, 32)
-        signature.append(sig_part)
+        signature = []
+        for _ in range(34):
+            sig_part, proof = bytes_pop(proof, 32)
+            signature.append(sig_part)
+        
+        proof_tree = []
 
-      proof_tree = []
-      for _ in range(2):
-        pair_pos, proof = bytes_pop(proof, 8)
-        other_hash, proof = bytes_pop(proof, 32)
-        proof_tree.append((int.from_bytes(pair_pos, 'big'), other_hash))
-      public_key, proof = bytes_pop(proof, 32)
+        num_levels, proof = bytes_pop(proof, 1)
+        
+        for _ in range(int.from_bytes(num_levels)):
+            pair_pos, proof = bytes_pop(proof, 8)
+            other_hash, proof = bytes_pop(proof, 32)
+            proof_tree.append((int.from_bytes(pair_pos, 'big'), other_hash))
+        public_key, proof = bytes_pop(proof, 32)
 
-      return cls(message_hush, signature, proof_tree, public_key, hash_type.decode(), hash_type_version.decode())
+        return cls(message_hush, signature, proof_tree, public_key, hash_type.decode(), hash_type_version.decode())
 
     else:
       raise cls.NoSuchHushType(message_hush)
