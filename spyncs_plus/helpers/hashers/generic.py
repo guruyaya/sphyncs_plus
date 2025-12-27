@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
+import math
 
 class GenericHasher(ABC):
   repeat_count = 255
   key_size_bytes = 32
+  _checksum_size: int
   protocol: str = "Generic"
   version: str = "1.0a"
 
@@ -13,13 +15,15 @@ class GenericHasher(ABC):
     def __init__(self, repeat_count: int, times: int) -> None:
       self.repeat_count = repeat_count
       self.times = times
+
       return super().__init__(f"You've requested to repeat {times}, but you can only go up to {repeat_count}")
     pass
 
   def __init__(self, repeat_count:int|None=None):
     if repeat_count:
       self.repeat_count = repeat_count
-
+    self._checksum_size = int(math.log2(self.repeat_count * self.key_size_bytes) // 8) + 1
+  
   @abstractmethod
   def _hash(self, data: bytes) -> bytes:
     pass

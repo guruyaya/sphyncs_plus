@@ -5,6 +5,7 @@ def test_init_sha256():
     hasher = SHA256Hasher()
     assert hasher.repeat_count == 255
     assert hasher.key_size_bytes == 32
+    assert hasher._checksum_size == 2
     assert hasher.protocol == 'SHA256'
     assert hasher.version == "1.0a"
 

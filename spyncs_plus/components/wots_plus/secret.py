@@ -19,7 +19,8 @@ class WotsPlusSecret(WotsPlusPublic):
     self.hasher = hasher
     self.randomGen = randomGen
 
-    self._required_checksum_key_count = int(math.log2(self.hasher.repeat_count * self.hasher.key_size_bytes) // BYTE_SIZE) + 1
+    self._required_checksum_key_count = hasher._checksum_size
+    
     # Hasing the initial keys prevent direct access to the results of the random generator
     self.s_keys = [self.hasher(key) for key in self.randomGen.get_keys(self.hasher.key_size_bytes)]
     self.checksum_keys = [self.hasher(key) for key in self.randomGen.get_keys(self._required_checksum_key_count)]
