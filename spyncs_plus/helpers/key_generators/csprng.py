@@ -20,11 +20,6 @@ class CSPRNGKeyGenerator(GenericKeyGenerator):
 
     jump_size = jump * self.key_size_bytes
     self._instance.randbytes(jump_size)
-    # max_jump = 2**27
-
-    # for jmp in range(jump_size // max_jump):
-    #   self._instance.randbytes(max_jump)
-    # self._instance.randbytes(jump_size % max_jump)
-
+    
   def _get_rand_key(self) -> bytes:
     return self._instance.randbytes(self.key_size_bytes)
