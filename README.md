@@ -30,7 +30,7 @@ The project is organized as follows:
   - [`spyncs_plus/components/`](spyncs_plus/components/): Contains various cryptographic components used by SPHINCS+ (e.g., Winternitz signatures, Merkle trees, address generation).
   - [`spyncs_plus/helpers/`](spyncs_plus/helpers/): Helper functions and modules.
     - [`spyncs_plus/helpers/hashers/`](spyncs_plus/helpers/hashers/): Implementations of cryptographic hash functions.
-    - [`spyncs_plus/helpers/random_generators/`](spyncs_plus/helpers/random_generators/): Modules for secure random number generation.
+    - [`spyncs_plus/helpers/key_generators/`](spyncs_plus/helpers/key_generators/): Modules for secure random number generation.
   - [`spyncs_plus/utils/`](spyncs_plus/utils/): Utility functions.
     - [`spyncs_plus/utils/password_protection/`](spyncs_plus/utils/password_protection/): (Placeholder/Example) Demonstrates potential integration of SPHINCS+ for password protection or similar applications.
 

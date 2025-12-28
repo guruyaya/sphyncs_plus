@@ -1,6 +1,6 @@
 from typing import Self
 from spyncs_plus.helpers.hashers import GenericHasher
-from spyncs_plus.helpers.random_generators import GenericRandomGenerator
+from spyncs_plus.helpers.key_generators import GenericKeyGenerator
 from spyncs_plus.components.wots_plus import WotsPlusSecret
 from .proof import SphincsTreeProof
 from .public import SphincsTreePublic
@@ -13,13 +13,13 @@ class SphincsTreeSecret(SphincsTreePublic):
   def create_pairs(lst: list):
     return [[lst[i], lst[i+1]] for i in range(0, len(lst), 2)]
 
-  def __init__(self, hasher: GenericHasher, random_generator: GenericRandomGenerator, num_levels:None|int=None):
+  def __init__(self, hasher: GenericHasher, key_generator: GenericKeyGenerator, num_levels:None|int=None):
     self.hasher = hasher
     self.num_levels = num_levels or self.num_levels
     if self.num_levels > 255:
       raise Exception("Does not support higher than 255 levels in one tree")
 
-    self.base_level = self.create_pairs([WotsPlusSecret(hasher, random_generator) for _ in range(2 ** (self.num_levels))])
+    self.base_level = self.create_pairs([WotsPlusSecret(hasher, key_generator) for _ in range(2 ** (self.num_levels))])
     self.levels = [[[w.public_key for w in l] for l in self.base_level]]
 
     for i in range(self.num_levels - 1):

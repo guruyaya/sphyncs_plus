@@ -2,12 +2,12 @@ from time import time
 from typing import Optional
 from spyncs_plus.components.shpincs_tree.secret import SphincsTreeSecret
 from spyncs_plus.helpers.hashers import GenericHasher, SHA256Hasher
-from spyncs_plus.helpers.random_generators import GenericRandomGenerator, CSPRNGRandomGenerator
+from spyncs_plus.helpers.key_generators import GenericKeyGenerator, CSPRNGKeyGenerator
 from secrets import randbelow
 
 class SphincsForestSecret():
     hasher: GenericHasher
-    random_generator: GenericRandomGenerator
+    key_generator: GenericKeyGenerator
     num_levels = 16
     num_inner_levels = 4
     _keys_to_generate_per_tree:int
@@ -19,10 +19,10 @@ class SphincsForestSecret():
         def __init__(self, key_num, max_key):
             super().__init__(f"Random key ({key_num}) must be lower than the allowed {max_key}")
 
-    def __init__(self, hasher: GenericHasher, random_generator: GenericRandomGenerator, secret_key: int):
+    def __init__(self, hasher: GenericHasher, key_generator: GenericKeyGenerator, secret_key: int):
         self.hasher = hasher
         self._secret_key = secret_key
-        self.random_generator = random_generator.setup(secret_key)
+        self.key_generator = key_generator.setup(secret_key)
         self._inner_trees_last_level = 2**self.num_inner_levels
         self._max_key_num = self._inner_trees_last_level**self.num_levels
         self._keys_to_generate_per_tree = (hasher.key_size_bytes + hasher._checksum_size) * self._inner_trees_last_level
@@ -42,10 +42,10 @@ class SphincsForestSecret():
             this_level_tree = this_level_tree // self._inner_trees_last_level
 
             # build tree, by number
-            self.random_generator.reset_seed(level_num)
-            self.random_generator.set_cursor(self._keys_to_generate_per_tree * this_level_tree)
+            self.key_generator.reset_seed(level_num)
+            self.key_generator.set_cursor(self._keys_to_generate_per_tree * this_level_tree)
             
-            level = SphincsTreeSecret(self.hasher, self.random_generator, self.num_inner_levels)
+            level = SphincsTreeSecret(self.hasher, self.key_generator, self.num_inner_levels)
             if len(all_trees) > 0:
                 level.sign_level_down(all_trees[-1], this_level_branch)
             all_trees += [level]
@@ -54,7 +54,7 @@ class SphincsForestSecret():
         
 if __name__ == '__main__':
     # this is for local testing purpose
-    secret = SphincsForestSecret(SHA256Hasher(), CSPRNGRandomGenerator(), 123)
+    secret = SphincsForestSecret(SHA256Hasher(), CSPRNGKeyGenerator(), 123)
     assert secret._keys_to_generate_per_tree == 544
 
     pk = secret.get_private_key(18)
@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     
     # this is for local testing purpose
-    secret = SphincsForestSecret(SHA256Hasher(), CSPRNGRandomGenerator(), 123)
+    secret = SphincsForestSecret(SHA256Hasher(), CSPRNGKeyGenerator(), 123)
     assert secret._keys_to_generate_per_tree == 544
 
     ts = time()

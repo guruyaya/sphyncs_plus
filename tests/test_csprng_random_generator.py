@@ -1,9 +1,9 @@
 from random import Random
-from spyncs_plus.helpers.random_generators.csprng import CSPRNGRandomGenerator
+from spyncs_plus.helpers.key_generators.csprng import CSPRNGKeyGenerator
 import pytest # type:ignore
 
 def test_init_csprng():
-    rgen = CSPRNGRandomGenerator()
+    rgen = CSPRNGKeyGenerator()
     assert hasattr(rgen, "base_seed") == False
     assert rgen.key_size_bytes == 32
     assert rgen.protocol == "CSPRNG"
@@ -11,20 +11,20 @@ def test_init_csprng():
     assert isinstance(rgen._instance, Random)
 
     generated_random_instance = Random()
-    rgen2 = CSPRNGRandomGenerator(generated_random_instance)
+    rgen2 = CSPRNGKeyGenerator(generated_random_instance)
     assert rgen2._instance is generated_random_instance
     assert rgen2._instance is not rgen._instance
 
 def test_no_setup_exception():
-    rgen = CSPRNGRandomGenerator()
+    rgen = CSPRNGKeyGenerator()
     
-    with pytest.raises(CSPRNGRandomGenerator.DidNotRunSetup):
+    with pytest.raises(CSPRNGKeyGenerator.DidNotRunSetup):
         rgen.reset_seed()
     
-    with pytest.raises(CSPRNGRandomGenerator.DidNotRunSetup):
+    with pytest.raises(CSPRNGKeyGenerator.DidNotRunSetup):
         rgen.set_cursor(1)
     
-    with pytest.raises(CSPRNGRandomGenerator.DidNotRunSetup):
+    with pytest.raises(CSPRNGKeyGenerator.DidNotRunSetup):
         next( rgen.get_keys() )
     
 # def test_high_keygen():
@@ -34,7 +34,7 @@ def test_no_setup_exception():
 #     rgen.set_cursor(4950368079037995815)
     
 def test_gen_keys():
-    rgen = CSPRNGRandomGenerator()
+    rgen = CSPRNGKeyGenerator()
     rgen.setup(123, 5)
 
     assert rgen._cursor == 0

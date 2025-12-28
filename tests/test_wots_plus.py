@@ -1,12 +1,12 @@
 from spyncs_plus.components.wots_plus import (WotsPlusPublic, WotsPlusSecret)
 from spyncs_plus.helpers.hashers import SHA256Hasher
-from spyncs_plus.helpers.random_generators import CSPRNGRandomGenerator
+from spyncs_plus.helpers.key_generators import CSPRNGKeyGenerator
 
 def test_wots_public_init():
     pass
 
 def test_wots_secret_init():
-    generator = CSPRNGRandomGenerator().setup(123)
+    generator = CSPRNGKeyGenerator().setup(123)
     hasher = SHA256Hasher()
     wots = WotsPlusSecret(hasher, generator)
 
@@ -18,11 +18,11 @@ def test_wots_plus_secret_verify():
     message_to_sign = b"Hello World"
     fake_message_to_sign = b"Hello world"
 
-    wots1 = WotsPlusSecret(SHA256Hasher(), CSPRNGRandomGenerator().setup(123))
+    wots1 = WotsPlusSecret(SHA256Hasher(), CSPRNGKeyGenerator().setup(123))
     signature = wots1.sign(message_to_sign)
     wotsp1 = wots1.get_public_wots()
 
-    wots2 = WotsPlusSecret(SHA256Hasher(), CSPRNGRandomGenerator().setup(120))
+    wots2 = WotsPlusSecret(SHA256Hasher(), CSPRNGKeyGenerator().setup(120))
     signature_bad = wots2.sign(message_to_sign)
     
     assert wotsp1.public_key.hex() == "de3448c592f51d3c279edef9f4569c856a0faeadcad38beaf229d1c694a73538"

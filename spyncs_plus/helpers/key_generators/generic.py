@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import Self
 
-class GenericRandomGenerator(ABC):
+class GenericKeyGenerator(ABC):
     base_seed: int
     key_size_bytes = 32
     protocol = "GENERIC"

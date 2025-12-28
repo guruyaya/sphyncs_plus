@@ -1,13 +1,13 @@
 from spyncs_plus.components.shpincs_tree.proof import SphincsTreeProof
 from spyncs_plus.components.shpincs_tree.secret import SphincsTreeSecret
 from spyncs_plus.helpers.hashers.sha256 import SHA256Hasher
-from spyncs_plus.helpers.random_generators.csprng import CSPRNGRandomGenerator
+from spyncs_plus.helpers.key_generators.csprng import CSPRNGKeyGenerator
 
 
 def test_sphincs_tree():
 
     private_key = 123
-    generator = CSPRNGRandomGenerator().setup(private_key)
+    generator = CSPRNGKeyGenerator().setup(private_key)
     generator.set_cursor(0)
 
     f = SphincsTreeSecret(SHA256Hasher(), generator)

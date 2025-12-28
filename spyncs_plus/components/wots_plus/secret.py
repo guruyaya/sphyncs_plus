@@ -1,13 +1,13 @@
 
 import math
 from .public import WotsPlusPublic
-from spyncs_plus.helpers.random_generators import GenericRandomGenerator
+from spyncs_plus.helpers.key_generators import GenericKeyGenerator
 from spyncs_plus.helpers.hashers import GenericHasher
 
 BYTE_SIZE = 8
 
 class WotsPlusSecret(WotsPlusPublic):
-  randomGen: GenericRandomGenerator
+  randomGen: GenericKeyGenerator
   secret_key_size = 32
 
   s_keys: list[bytes]
@@ -15,7 +15,7 @@ class WotsPlusSecret(WotsPlusPublic):
 
   _required_checksum_key_count: int
 
-  def __init__(self, hasher: GenericHasher, randomGen: GenericRandomGenerator):
+  def __init__(self, hasher: GenericHasher, randomGen: GenericKeyGenerator):
     self.hasher = hasher
     self.randomGen = randomGen
 

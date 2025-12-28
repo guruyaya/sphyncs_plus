@@ -1,8 +1,8 @@
 
 from random import Random
-from .generic import GenericRandomGenerator
+from .generic import GenericKeyGenerator
 
-class CSPRNGRandomGenerator(GenericRandomGenerator):
+class CSPRNGKeyGenerator(GenericKeyGenerator):
   _instance: Random
   protocol = "CSPRNG"
   
