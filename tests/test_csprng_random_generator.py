@@ -27,6 +27,12 @@ def test_no_setup_exception():
     with pytest.raises(CSPRNGRandomGenerator.DidNotRunSetup):
         next( rgen.get_keys() )
     
+def test_high_keygen():
+    rgen = CSPRNGRandomGenerator()
+    rgen.setup(123, 5)
+
+    rgen.set_cursor(4950368079037995815)
+    
 def test_gen_keys():
     rgen = CSPRNGRandomGenerator()
     rgen.setup(123, 5)
