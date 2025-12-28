@@ -44,18 +44,21 @@ def test_gen_keys():
     five_keys = [k.hex() for k in rgen.get_keys(5)]
     assert len(five_keys) == 5
     assert five_keys == [
-        'e112a6f022b874d9e0f8943c9f84d9671e68f28267812d5d3d965022e3dab27b', 
-        '9ece5d07617c37fc284c7a27dafe9051c3a352a31c921d8a839a6940b2040da1',
-        '1c6d0eab47476d937d9c8fb6adb56ae471d00c8e6230ed4c704304114e4994c6',
-        '6d45bc1c6084910731cb7a4a2d0eb9c2f45f345f7978761fe89521e985a284d5',
-        '8e5f89b733b2faa4e0c3ef706854c4e863d5612ae1e4a7f8c8d5436696952485'
+        '8b3f4433467d1df398023e4f0077a2b73485e2f7656d9f4baff063caeebc4edf', 
+        '82af84ab2c56cf017e71791b95bc85893ae19bfb2b34a524c1c40524d8ebba8e',
+        '765ca662c0f5e20dd543a86569c6892a3edee542aa16e30e37d8884767f11025',
+        '387bb4eb48b5ed1d685da1f57be7b1202fdb5fbc962f6bdcaaa528bd30ceaf8f',
+        '2edc7a50169015c511fcddc20b2f19b0028d2f4e3ac5fca8bac88ac3b8be176c'
     ]
 
     rgen.reset_seed()
     assert [k.hex() for k in rgen.get_keys(5)] == five_keys, "Did not generate the same keys"
 
-    rgen.reset_seed(90)
+    rgen.reset_seed(1)
     five_other_keys = [k.hex() for k in rgen.get_keys(5)]
+    for i, key in enumerate(five_other_keys):
+        assert key not in five_keys, f"Key number {i} in other keys, reperats here {five_keys}"
+
     assert five_other_keys != five_keys, "Generate the same keys"
 
     all_keys = five_other_keys + five_keys

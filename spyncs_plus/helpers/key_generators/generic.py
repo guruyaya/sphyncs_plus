@@ -27,6 +27,10 @@ class GenericKeyGenerator(ABC):
     def _jump(self, jump: int):
         pass
     
+    @abstractmethod
+    def _get_modified_seed(self):
+        pass
+
     def setup(self, seed: int, modeifier:None|int=None) -> Self:
         self.base_seed = seed
         self.reset_seed(modeifier)
@@ -41,7 +45,7 @@ class GenericKeyGenerator(ABC):
         if modifier is not None: # A modifier was set
             self._modifier = modifier_int
         
-        self._set_seed((self.base_seed + self._modifier) % (8 ** self.key_size_bytes))
+        self._set_seed(self._get_modified_seed())
         self._cursor = 0
 
     def set_cursor(self, jump:int):
