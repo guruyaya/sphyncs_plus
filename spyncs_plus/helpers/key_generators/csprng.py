@@ -13,6 +13,11 @@ class CSPRNGKeyGenerator(GenericKeyGenerator):
     self._instance.seed(seed)
 
   def _jump(self, jump: int) -> None:
+    relative_jump = jump - self._cursor
+    if relative_jump < 0:
+        self.reset_seed()
+        relative_jump = jump
+
     jump_size = jump * self.key_size_bytes
     self._instance.randbytes(jump_size)
     # max_jump = 2**27

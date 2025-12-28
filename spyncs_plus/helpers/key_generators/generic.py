@@ -48,11 +48,7 @@ class GenericKeyGenerator(ABC):
         if not hasattr(self, "base_seed"):
             raise self.DidNotRunSetup()
 
-        relative_jump = jump - self._cursor
-        if relative_jump < 0:
-            self.reset_seed(self.base_seed)
-            relative_jump = jump
-        self._jump(relative_jump)
+        self._jump(jump)
         self._cursor = jump
 
     def get_keys(self, number_of_keys=1) -> Iterable[bytes]:
