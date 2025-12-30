@@ -26,12 +26,29 @@ def test_no_setup_exception():
     
     with pytest.raises(CSPRNGKeyGenerator.DidNotRunSetup):
         next( rgen.get_keys() )
-    
-# def test_high_keygen():
-#     rgen = CSPRNGRandomGenerator()
-#     rgen.setup(123, 5)
 
-#     rgen.set_cursor(4950368079037995815)
+def test_modifier_works():
+    rgen = CSPRNGKeyGenerator()
+    rgen.setup(123, 5)
+
+    five_keys = [k.hex() for k in rgen.get_keys(5)]
+
+    rgen.reset_seed(6)
+    five_other_keys = [k.hex() for k in rgen.get_keys(5)]
+
+    assert all(k not in five_other_keys for k in five_keys)
+
+
+def test_high_keygen():
+    rgen = CSPRNGKeyGenerator()
+    rgen.setup(123, 4950368079037995816)
+
+    five_keys = [k.hex() for k in rgen.get_keys(5)]
+
+    rgen.reset_seed(4950368079037995815)
+    five_other_keys = [k.hex() for k in rgen.get_keys(5)]
+
+    assert all(k not in five_other_keys for k in five_keys)
     
 def test_gen_keys():
     rgen = CSPRNGKeyGenerator()
@@ -51,8 +68,8 @@ def test_gen_keys():
         '2edc7a50169015c511fcddc20b2f19b0028d2f4e3ac5fca8bac88ac3b8be176c'
     ]
 
-    rgen.reset_seed()
-    assert [k.hex() for k in rgen.get_keys(5)] == five_keys, "Did not generate the same keys"
+    rgen.set_cursor(1)
+    assert [k.hex() for k in rgen.get_keys(4)] == five_keys[1:], "Did not generate the same keys"
 
     rgen.reset_seed(1)
     five_other_keys = [k.hex() for k in rgen.get_keys(5)]
@@ -63,3 +80,19 @@ def test_gen_keys():
 
     all_keys = five_other_keys + five_keys
     assert len(all_keys) == len(set(all_keys)), "Same keys generated twice"
+
+def test_big_jumps():
+        rgen = CSPRNGKeyGenerator(max_jump=1024)
+        rgen.setup(123, 0)
+
+        assert rgen._physical_jump == 0
+        five_keys = [k.hex() for k in rgen.get_keys(5)]
+        assert rgen._physical_jump == 5
+        
+        rgen.set_cursor(1024)
+        assert rgen._physical_jump == 0
+
+        five_other_keys = [k.hex() for k in rgen.get_keys(5)]
+
+
+        assert all(k not in five_other_keys for k in five_keys)
