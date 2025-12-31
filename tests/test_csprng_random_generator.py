@@ -81,18 +81,53 @@ def test_gen_keys():
     all_keys = five_other_keys + five_keys
     assert len(all_keys) == len(set(all_keys)), "Same keys generated twice"
 
+def test_big_mid_max_jump_handling():
+    rgen = CSPRNGKeyGenerator(max_jump=1024)
+    rgen.setup(123, 0)
+
+    rgen.set_cursor(1023)
+    assert rgen._physical_jump == 1023
+    five_keys = [k.hex()[:6] for k in rgen.get_keys(5)]
+    assert rgen._cursor == 1028
+    assert rgen._physical_jump == 4
+
+    rgen.set_cursor(1025)
+    assert rgen._physical_jump == 1
+    three_keys = [k.hex()[:6] for k in rgen.get_keys(3)]
+    assert rgen._cursor == 1028
+    assert rgen._physical_jump == 4
+
+    assert five_keys[2:] == three_keys
+
+
 def test_big_jumps():
-        rgen = CSPRNGKeyGenerator(max_jump=1024)
-        rgen.setup(123, 0)
+    rgen = CSPRNGKeyGenerator(max_jump=1024)
+    rgen.setup(123, 0)
 
-        assert rgen._physical_jump == 0
-        five_keys = [k.hex() for k in rgen.get_keys(5)]
-        assert rgen._physical_jump == 5
-        
-        rgen.set_cursor(1024)
-        assert rgen._physical_jump == 0
+    rgen.set_cursor(1)
+    assert rgen._physical_jump == 1
+    five_keys = [k.hex()[:6] for k in rgen.get_keys(5)]
+    assert rgen._physical_jump == 6
+    assert rgen._cursor == 6
+    assert len(set(five_keys)) == 5, f"Found repeating keys: {five_keys}"
+    
+    rgen.set_cursor(1025)
+    assert rgen._physical_jump == 1
+    assert rgen._cursor == 1025
 
-        five_other_keys = [k.hex() for k in rgen.get_keys(5)]
+    five_other_keys = [k.hex()[:6] for k in rgen.get_keys(5)]
+    assert len(set(five_other_keys)) == 5, "Found repeating keys"
 
+    assert all(k not in five_other_keys for k in five_keys)
+    five_keys += five_other_keys
+    assert len(set(five_keys)) == 10, five_keys # No repeating keys
+    assert rgen._cursor == 1030
 
-        assert all(k not in five_other_keys for k in five_keys)
+    rgen.set_cursor(2049)
+    assert rgen._physical_jump == 1
+    assert rgen._cursor == 2049
+
+    five_other_keys = [k.hex() for k in rgen.get_keys(5)]
+
+    assert all(k not in five_other_keys for k in five_keys)
+

@@ -36,6 +36,9 @@ class GenericKeyGenerator(ABC):
         self.reset_seed(modeifier)
         return self # using the builder pattern for easier usage
 
+    def _set_reset_cursor(self):
+        self._cursor = 0
+
     def reset_seed(self, modifier:None|int=None):
         if not hasattr(self, "base_seed"):
             raise self.DidNotRunSetup()
@@ -46,7 +49,7 @@ class GenericKeyGenerator(ABC):
             self._modifier = modifier_int
         
         self._set_seed(self._get_modified_seed())
-        self._cursor = 0
+        self._set_reset_cursor()
 
     def set_cursor(self, jump:int):
         if not hasattr(self, "base_seed"):
@@ -60,5 +63,5 @@ class GenericKeyGenerator(ABC):
             raise self.DidNotRunSetup()
 
         for _ in range(number_of_keys):
-            self._cursor += 1
             yield self._get_rand_key()
+            self._cursor += 1
