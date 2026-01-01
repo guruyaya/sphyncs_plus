@@ -40,7 +40,7 @@ class SphincsForestSecret():
         for level_num in range (self.num_levels-1, -1, -1):
             this_level_branch = this_level_tree % self._inner_trees_last_level
             this_level_tree = this_level_tree // self._inner_trees_last_level
-
+            
             # build tree, by number
             self.key_generator.reset_seed(level_num)
             self.key_generator.set_cursor(self._keys_to_generate_per_tree * this_level_tree)
@@ -49,30 +49,4 @@ class SphincsForestSecret():
             if len(all_trees) > 0:
                 level.sign_level_down(all_trees[-1], this_level_branch)
             all_trees += [level]
-            
         return all_trees
-        
-if __name__ == '__main__':
-    # this is for local testing purpose
-    secret = SphincsForestSecret(SHA256Hasher(), CSPRNGKeyGenerator(), 123)
-    assert secret._keys_to_generate_per_tree == 544
-
-    pk = secret.get_private_key(18)
-    for k in pk:
-        print (k.is_level_up_signed())
-    
-    print (pk[-1].public_key.hex())
-
-    
-    # this is for local testing purpose
-    secret = SphincsForestSecret(SHA256Hasher(), CSPRNGKeyGenerator(), 123)
-    assert secret._keys_to_generate_per_tree == 544
-
-    ts = time()
-    pk = secret.get_private_key(4950368079037995815)
-    for k in pk:
-        print (k.is_level_up_signed())
-    
-    print (time() - ts)
-    print (pk[-1].public_key.hex())
-

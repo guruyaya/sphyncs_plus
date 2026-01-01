@@ -25,7 +25,7 @@ def test_wots_plus_secret_verify():
     wots2 = WotsPlusSecret(SHA256Hasher(), CSPRNGKeyGenerator().setup(120))
     signature_bad = wots2.sign(message_to_sign)
     
-    assert wotsp1.public_key.hex() == "de3448c592f51d3c279edef9f4569c856a0faeadcad38beaf229d1c694a73538"
+    assert wotsp1.public_key.hex() == "445f87585baf0c219b9ed1b66d24be6f8b8978ae5151d253a0d9bb4283abadda"
     assert (wotsp1.verify(message_to_sign, signature))
     assert (wotsp1.verify(message_to_sign, signature_bad) == False)
     assert (wotsp1.verify(fake_message_to_sign, signature) == False)

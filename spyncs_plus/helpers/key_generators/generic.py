@@ -43,7 +43,7 @@ class GenericKeyGenerator(ABC):
         if not hasattr(self, "base_seed"):
             raise self.DidNotRunSetup()
         
-        modifier_int = modifier or self._modifier
+        modifier_int = self._modifier if modifier is None else modifier 
         
         if modifier is not None: # A modifier was set
             self._modifier = modifier_int
