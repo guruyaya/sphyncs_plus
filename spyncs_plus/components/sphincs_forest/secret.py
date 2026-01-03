@@ -33,6 +33,8 @@ class SphincsForestSecret(SphincsForestPublicKey):
     _secret_key: int
     _max_key_num: int
     _inner_trees_last_level: int
+    # TODO - computing the top tree on every key generation is wasteful, and should be caches on init, 
+    # when public key hash is computed
     
     class RandomKeyTooHigh(Exception):
         def __init__(self, key_num, max_key):
@@ -50,6 +52,23 @@ class SphincsForestSecret(SphincsForestPublicKey):
         self._max_key_num = self._inner_trees_last_level**self.num_levels
         self._keys_to_generate_per_tree = (hasher.key_size_bytes + hasher._checksum_size) * self._inner_trees_last_level
 
+        to_sphincs_tree_secret, _, _ = self.compute_level(0, 0)
+        
+        self.pk_hash = to_sphincs_tree_secret.public_key
+
+        
+    def compute_level(self, level_num, this_level_tree) -> tuple[SphincsTreeSecret, int, int]:
+        this_level_branch = this_level_tree % self._inner_trees_last_level
+        this_level_tree = this_level_tree // self._inner_trees_last_level
+
+        # build tree, by number
+        self.key_generator.reset_seed(level_num)
+        self.key_generator.set_cursor(self._keys_to_generate_per_tree * this_level_tree)
+
+        level = SphincsTreeSecret(self.hasher, self.key_generator, self.trees_per_level)
+
+        return level, this_level_branch, this_level_tree
+
     def get_secret_key(self, key_num:Optional[int]=None) -> SphincsForestSecretKey:
         key_num_int = key_num if isinstance(key_num, int) else randbelow(self._max_key_num)
         if key_num_int >= self._max_key_num:
@@ -60,14 +79,8 @@ class SphincsForestSecret(SphincsForestPublicKey):
         all_trees:list[SphincsTreeSecret] = []
 
         for level_num in range (self.num_levels-1, -1, -1):
-            this_level_branch = this_level_tree % self._inner_trees_last_level
-            this_level_tree = this_level_tree // self._inner_trees_last_level
+            level, this_level_branch, this_level_tree = self.compute_level(level_num, this_level_tree)
             
-            # build tree, by number
-            self.key_generator.reset_seed(level_num)
-            self.key_generator.set_cursor(self._keys_to_generate_per_tree * this_level_tree)
-            
-            level = SphincsTreeSecret(self.hasher, self.key_generator, self.trees_per_level)
             if len(all_trees) > 0:
                 level.sign_level_down(all_trees[-1], this_level_branch)
             all_trees += [level]
