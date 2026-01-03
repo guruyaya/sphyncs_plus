@@ -28,8 +28,8 @@ class WotsPlusSecret(WotsPlusPublic):
     p_keys = [self.hasher.forward(h, self.hasher.repeat_count) for h in (self.s_keys + self.checksum_keys)]
     self.public_key = self.hasher.concatenate_hash(p_keys)
 
-  def sign(self, message: bytes) -> list[bytes]:
-    message_hash = self.hasher(message)
+  def sign(self, message: bytes, allready_hashed=False) -> list[bytes]:
+    message_hash = message if allready_hashed else self.hasher(message)
     message_bytes = self.hash_to_single_bytes(message_hash)
 
     values = []
