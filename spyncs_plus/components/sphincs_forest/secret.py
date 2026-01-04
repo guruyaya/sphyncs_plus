@@ -85,5 +85,4 @@ class SphincsForestSecret(SphincsForestPublicKey):
                 level.sign_level_down(all_trees[-1], this_level_branch)
             all_trees += [level]
         
-        print (f"{key_num_int=}")
         return SphincsForestSecretKey(key_num=key_num_int, levels=all_trees, hasher=self.hasher)
