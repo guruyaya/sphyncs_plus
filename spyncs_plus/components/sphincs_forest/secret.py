@@ -11,13 +11,15 @@ class SphincsForestSecretKey():
     levels: list[SphincsTreeSecret]
     key_num: int
     hasher: GenericHasher
+    public_key: bytes
 
     _last_level_size: int
     
-    def __init__(self, levels: list[SphincsTreeSecret], key_num: int, hasher: GenericHasher):
+    def __init__(self, levels: list[SphincsTreeSecret], key_num: int, hasher: GenericHasher, public_key: bytes):
         self.levels = levels
         self.key_num = key_num
         self.hasher = hasher
+        self.public_key = public_key
         
         self._last_level_size = len(levels[0].levels[0]) * 2
 
@@ -25,9 +27,10 @@ class SphincsForestSecretKey():
         message_hash = self.hasher(message)
         levels:list[SphincsTreeProof|None] = [level.level_up_proof for level in self.levels]
         message_signature = self.levels[0].sign(message, key_num=self.key_num % self._last_level_size)
-        return SphincsForestProof(hash=message_hash, levels=levels, signature=message_signature)
+        return SphincsForestProof(levels=levels, hasher=self.hasher,
+                                  signature=message_signature, public_key=self.public_key)
 
-class SphincsForestSecret(SphincsForestPublicKey):
+class SphincsForestSecretGenerator(SphincsForestPublicKey):
     key_generator: GenericKeyGenerator
     _keys_to_generate_per_tree:int
     _secret_key: int
@@ -85,4 +88,5 @@ class SphincsForestSecret(SphincsForestPublicKey):
                 level.sign_level_down(all_trees[-1], this_level_branch)
             all_trees += [level]
         
-        return SphincsForestSecretKey(key_num=key_num_int, levels=all_trees, hasher=self.hasher)
+        return SphincsForestSecretKey(key_num=key_num_int, levels=all_trees, 
+                                      hasher=self.hasher, public_key=self.pk_hash)

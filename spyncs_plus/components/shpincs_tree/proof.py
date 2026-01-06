@@ -25,28 +25,29 @@ class SphincsTreeProof:
     def __init__(self, hash_type):
       super().__init__(f"Installed version of SphincsTree does not support '{hash_type}' hashers. only supports the following hash types: {ProofHashTypes.SHA256}")
 
-  def get_result(self, hasher:Optional[GenericHasher]=None):
+  def get_result(self, hasher:Optional[GenericHasher]=None, message_hash:bytes|None=None):
+    to_check = message_hash or self.message_hash
     my_hasher = hasher or ProofHashTypes.get_hasher(self.hash_type)()
     wots = WotsPlusPublic(my_hasher)
-    this_hash = wots.calculate_public_key_from_message(self.message_hash, self.signature, pre_hashed=True)
+    this_hash = wots.calculate_public_key_from_message(to_check, self.signature, pre_hashed=True)
     for position, other_hash in self.proof_tree:
       to_concat = [other_hash, this_hash] if position == 1 else [this_hash, other_hash]
       this_hash = (my_hasher.concatenate_hash(to_concat))
     return this_hash
 
-  def verify(self, hasher:Optional[GenericHasher]=None) -> bool:
+  def verify(self, hasher:Optional[GenericHasher]=None, message_hash:bytes|None=None) -> bool:
     if self.public_key == None:
       raise Exception("Public key is not set")
-    return self.public_key == self.get_result(hasher)
+    return self.public_key == self.get_result(hasher, message_hash)
 
   def to_bytes(self) -> bytes:
     if self.hash_type == ProofHashTypes.SHA256:
-        num_proof_size = len(self.proof_tree)
+        proof_size = len(self.proof_tree)
         proofs_bytes = b''.join(int.to_bytes(tree[0], 8) + tree[1] for tree in self.proof_tree)
 
         return ( self.hash_type.encode() + "|".encode() + self.hash_type_version.encode() + "|".encode() +
             self.message_hash + b''.join(self.signature) +
-                num_proof_size.to_bytes(1) +
+                proof_size.to_bytes(1) +
                 proofs_bytes + (self.public_key or int.to_bytes(0, 32)))
     else:
         raise self.NoSuchHushType(self.hash_type)
@@ -79,3 +80,6 @@ class SphincsTreeProof:
 
     else:
       raise cls.NoSuchHushType(message_hush)
+
+  def __repr__(self):
+     return f"<SphincsTreeProof message_hash={self.message_hash.hex()} proof_size={len(self.proof_tree)} />"
