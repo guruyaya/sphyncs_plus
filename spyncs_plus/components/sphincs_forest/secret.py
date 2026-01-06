@@ -24,11 +24,10 @@ class SphincsForestSecretKey():
         self._last_level_size = len(levels[0].levels[0]) * 2
 
     def sign(self, message: bytes) -> SphincsForestProof:
-        message_hash = self.hasher(message)
         levels:list[SphincsTreeProof|None] = [level.level_up_proof for level in self.levels]
         message_signature = self.levels[0].sign(message, key_num=self.key_num % self._last_level_size)
-        return SphincsForestProof(levels=levels, hasher=self.hasher,
-                                  signature=message_signature, public_key=self.public_key)
+        return SphincsForestProof(levels=levels, hasher=self.hasher, signature=message_signature, 
+                                  public_key=self.public_key)
 
 class SphincsForestSecretGenerator(SphincsForestPublicKey):
     key_generator: GenericKeyGenerator

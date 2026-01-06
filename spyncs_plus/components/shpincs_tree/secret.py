@@ -38,7 +38,7 @@ class SphincsTreeSecret(SphincsTreePublic):
 
     wots_key = self.base_level[key_num // 2][key_num % 2]
     signature = wots_key.sign(message, allready_hashed=allready_hashed)
-
+    
     for i in range(self.num_levels):
       pair_num = key_num // 2
       pair_pos = key_num % 2
@@ -46,7 +46,7 @@ class SphincsTreeSecret(SphincsTreePublic):
       pair_num_pos.append((pair_pos, self.levels[i][pair_num][1-pair_pos]))
       key_num = pair_num
 
-    message_hash = self.hasher(message)
+    message_hash = message if allready_hashed else self.hasher(message)
     return SphincsTreeProof(message_hash=message_hash, signature=signature, proof_tree=pair_num_pos, 
                             public_key=self.public_key)
 
